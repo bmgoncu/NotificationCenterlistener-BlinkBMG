@@ -99,7 +99,7 @@ namespace NotificationCenterlistener
                     // We'll treat all subsequent text elements as body text,
                     // joining them together via newlines.
                     string bodyText = string.Join("\n", textElements.Skip(1).Select(t => t.Text));
-                    Debug.WriteLine(string.Join("Title: ", titleText, ", Body: " + bodyText));
+                    Debug.WriteLine("App: " + notif.AppInfo.DisplayInfo.DisplayName + " => Title: " + titleText + ", Body: " + bodyText);
                 }
             }
         }
