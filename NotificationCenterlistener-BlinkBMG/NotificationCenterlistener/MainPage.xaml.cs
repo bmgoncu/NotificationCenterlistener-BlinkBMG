@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Notifications.Management;
 using Windows.UI.Xaml;
@@ -29,6 +31,7 @@ namespace NotificationCenterlistener
         public MainPage()
         {
             this.InitializeComponent();
+            NotificationListView = new ListView();
             CheckNotificationAccess();
             CheckNotifications();
 
@@ -80,9 +83,17 @@ namespace NotificationCenterlistener
             
         }
 
+        public class NotificationCenterData
+        {
+            public string AppName;
+            public string Title;
+            public string Body;
+        }
+
         private async void Listener_NotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args)
         {
             IReadOnlyList<UserNotification> notifs = await sender.GetNotificationsAsync(NotificationKinds.Toast);
+            ObservableCollection<NotificationCenterData> listItems = new ObservableCollection<NotificationCenterData>();
 
             Debug.WriteLine("--------------NEW Event Received----------------");
             foreach(var notif in notifs)
@@ -99,9 +110,21 @@ namespace NotificationCenterlistener
                     // We'll treat all subsequent text elements as body text,
                     // joining them together via newlines.
                     string bodyText = string.Join("\n", textElements.Skip(1).Select(t => t.Text));
-                    Debug.WriteLine("App: " + notif.AppInfo.DisplayInfo.DisplayName + " => Title: " + titleText + ", Body: " + bodyText);
+
+                    string payload = "App: " + notif.AppInfo.DisplayInfo.DisplayName + " => Title: " + titleText + ", Body: " + bodyText;
+                    Debug.WriteLine(payload);
+                    listItems.Add(new NotificationCenterData() {
+                        AppName = notif.AppInfo.DisplayInfo.DisplayName,
+                        Title = titleText,
+                        Body = bodyText
+                    });
                 }
             }
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                NotificationListView.ItemsSource = listItems;
+            });
         }
+
     }
 }

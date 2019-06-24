@@ -23,13 +23,22 @@
                 </LinearGradientBrush>
             </Border.Background>
         </Border>
-        <ListView x:Name="listView" Grid.Column="2" HorizontalAlignment="Right" Margin="0,150,30,30" VerticalAlignment="Stretch" Width="444">
+        <ListView x:Name="NotificationListView" Grid.Column="2" HorizontalAlignment="Right" Margin="0,150,30,30" VerticalAlignment="Stretch" Width="444">
             <ListView.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black"/>
                     <GradientStop Color="#FF191919" Offset="1"/>
                 </LinearGradientBrush>
             </ListView.Background>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="{Binding AppName}" FontWeight="Bold" />
+                        <TextBlock Text="{Binding Title}" FontWeight="Bold" TextDecorations="Underline"/>
+                        <TextBlock Text="{Binding Body}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
 
     </Grid>
