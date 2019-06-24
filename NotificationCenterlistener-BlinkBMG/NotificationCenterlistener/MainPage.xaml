@@ -33,13 +33,14 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
-                        <TextBlock Text="{Binding AppName}" FontWeight="Bold" />
-                        <TextBlock Text="{Binding Title}" FontWeight="Bold" TextDecorations="Underline"/>
-                        <TextBlock Text="{Binding Body}"/>
+                        <TextBlock Text="{Binding AppName}" FontWeight="Bold" ></TextBlock>
+                        <TextBlock Text="{Binding Title}" FontWeight="Bold" TextDecorations="Underline"></TextBlock>
+                        <TextBlock Text="{Binding Body}"></TextBlock>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Button x:Name="TestButton" Content="Test Notification" Grid.Column="2" HorizontalAlignment="Right" Margin="0,30,10,0" VerticalAlignment="Top" Height="71" Width="242"/>
 
     </Grid>
 </Page>

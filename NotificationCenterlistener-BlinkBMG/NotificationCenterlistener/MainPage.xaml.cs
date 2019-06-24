@@ -27,19 +27,39 @@ namespace NotificationCenterlistener
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        bool isAccessGranted = false;
+        private ObservableCollection<NotificationCenterData> _listItems;
+        private bool isAccessGranted = false;
+
         public MainPage()
         {
             this.InitializeComponent();
-            NotificationListView = new ListView();
+            _listItems = new AsyncObservableCollection<NotificationCenterData>();
             CheckNotificationAccess();
-            CheckNotifications();
 
+            TestButton.Click += OnTestButtonClick;
         }
 
-        public async void CheckNotifications()
+        private void OnTestButtonClick(object sender, RoutedEventArgs e)
         {
+            ShowToastNotification("Test", "Lorem ipsum dolor sit amet");
         }
+
+        private void ShowToastNotification(string title, string stringContent)
+        {
+            ToastNotifier ToastNotifier = ToastNotificationManager.CreateToastNotifier();
+            Windows.Data.Xml.Dom.XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
+            Windows.Data.Xml.Dom.XmlNodeList toastNodeList = toastXml.GetElementsByTagName("text");
+            toastNodeList.Item(0).AppendChild(toastXml.CreateTextNode(title));
+            toastNodeList.Item(1).AppendChild(toastXml.CreateTextNode(stringContent));
+            Windows.Data.Xml.Dom.IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
+            Windows.Data.Xml.Dom.XmlElement audio = toastXml.CreateElement("audio");
+            audio.SetAttribute("src", "ms-winsoundevent:Notification.SMS");
+
+            ToastNotification toast = new ToastNotification(toastXml);
+            toast.ExpirationTime = DateTime.Now.AddSeconds(4);
+            ToastNotifier.Show(toast);
+        }
+        
 
         public async void CheckNotificationAccess()
         {
@@ -83,18 +103,9 @@ namespace NotificationCenterlistener
             
         }
 
-        public class NotificationCenterData
-        {
-            public string AppName;
-            public string Title;
-            public string Body;
-        }
-
         private async void Listener_NotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args)
         {
             IReadOnlyList<UserNotification> notifs = await sender.GetNotificationsAsync(NotificationKinds.Toast);
-            ObservableCollection<NotificationCenterData> listItems = new ObservableCollection<NotificationCenterData>();
-
             Debug.WriteLine("--------------NEW Event Received----------------");
             foreach(var notif in notifs)
             {
@@ -113,7 +124,7 @@ namespace NotificationCenterlistener
 
                     string payload = "App: " + notif.AppInfo.DisplayInfo.DisplayName + " => Title: " + titleText + ", Body: " + bodyText;
                     Debug.WriteLine(payload);
-                    listItems.Add(new NotificationCenterData() {
+                    _listItems.Add(new NotificationCenterData() {
                         AppName = notif.AppInfo.DisplayInfo.DisplayName,
                         Title = titleText,
                         Body = bodyText
@@ -122,7 +133,7 @@ namespace NotificationCenterlistener
             }
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                NotificationListView.ItemsSource = listItems;
+                NotificationListView.ItemsSource = _listItems;
             });
         }
 
